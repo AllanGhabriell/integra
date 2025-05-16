@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -15,19 +15,15 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
-    setError(null)
-    const res = await signIn('credentials', {
-      redirect: false,
+    setError('')
+
+    // usa redirect automático
+    await signIn('credentials', {
+      redirect: true,
       email,
-      password
+      password,
+      callbackUrl: '/perfil'
     })
-    setLoading(false)
-    if (res.error) {
-      setError(res.error)
-    } else {
-      alert('Login bem-sucedido')
-      router.push('/perfil')
-    }
   }
 
   return (
@@ -75,7 +71,7 @@ export default function Login() {
 
       <button
         className="w-full mt-4 bg-red-500 text-white p-2 rounded"
-        onClick={() => signIn('google')}
+        onClick={() => signIn('google', { callbackUrl: '/perfil' })}
       >
         Entrar com Google
       </button>

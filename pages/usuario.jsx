@@ -16,12 +16,12 @@ export default function Usuarios() {
     if (!session || session.user.role !== 'admin') {
       router.replace('/')
     }
-  }, [session, status])
+  }, [session, status, router])
 
   // Busca usuários
   const fetchUsers = () => {
     setLoading(true)
-    fetch('/api/usuarios')
+    fetch('/api/usuarios', { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Erro ao buscar usuários')
         return res.json()
@@ -42,7 +42,10 @@ export default function Usuarios() {
 
   function handleDelete(id) {
     if (!confirm('Deseja realmente excluir este usuário?')) return
-    fetch(`/api/usuarios/${id}`, { method: 'DELETE' })
+    fetch(`/api/usuarios/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    })
       .then(res => {
         if (res.ok) {
           setUsers(us => us.filter(u => u._id !== id))

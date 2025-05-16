@@ -10,10 +10,10 @@ export default function CriarQuiz() {
   // Redireciona se não for admin
   useEffect(() => {
     if (status === 'loading') return
-    if (!session || session.user.role !== 'admin') {
+    if (!session?.user?.role || session.user.role !== 'admin') {
       router.replace('/')
     }
-  }, [session, status])
+  }, [session, status, router])
 
   // Estado do form
   const [title, setTitle] = useState('')
@@ -99,6 +99,11 @@ export default function CriarQuiz() {
 
   if (status === 'loading') {
     return <p className="p-4">Validando usuário…</p>
+  }
+
+  // Se não for admin, não renderiza o form (evita flash momentâneo)
+  if (!session?.user?.role || session.user.role !== 'admin') {
+    return null
   }
 
   return (

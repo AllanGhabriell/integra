@@ -13,10 +13,17 @@ export default function Perfil() {
     if (status === 'loading') return
     if (!session) return
 
-    fetch(`/api/usuarios/${session.user.id}/stats`)
+    fetch(`/api/usuarios/${session.user.id}/stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(data => setStats(data))
-      .catch(() => {})
+      .catch(err => console.error('Erro ao buscar stats:', err))
   }, [session, status])
 
   if (status === 'loading') {

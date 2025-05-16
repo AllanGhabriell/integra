@@ -1,30 +1,38 @@
 // pages/api/resultados/index.js
-import dbConnect from "../../../lib/db";
-import Resultado from "@/models/Resultado";
-import { getSession } from "next-auth/react";
+import { connectToDatabase } from '../../../lib/db'
+import Resultado from '../../../models/Resultado'
+import { getToken } from 'next-auth/jwt'
+
+const SECRET = process.env.NEXTAUTH_SECRET
 
 export default async function handler(req, res) {
-  await dbConnect();
-  const { method, body } = req;
-  const session = await getSession({ req });
+  await connectToDatabase()
+  const { method, body } = req
+  const token = await getToken({ req, secret: SECRET })
 
-  if (method === "POST") {
-    if (!session) {
-      return res
-        .status(401)
-        .json({ message: "Faça login para enviar resultados" });
+  if (method === 'POST') {
+    if (!token) {
+      return res.status(401).json({ message: 'Faça login para enviar resultados' })
     }
-    const { quizId, time, score } = body;
-    const result = new Resultado({
-      quiz: quizId,
-      user: session.user.id,
-      time,
-      score,
-    });
-    await result.save();
-    return res.status(201).json(result);
+    const { quizId, time, score } = body
+    if (!quizId || score == null || time == null) {
+      return res.status(400).json({ message: 'Dados incompletos' })
+    }
+    try {
+      const result = new Resultado({
+        quiz: quizId,
+        user: token.sub,
+        time,
+        score
+      })
+      await result.save()
+      return res.status(201).json(result)
+    } catch (error) {
+      console.error('Erro ao salvar resultado:', error)
+      return res.status(500).json({ message: 'Erro ao salvar resultado' })
+    }
   }
 
-  res.setHeader("Allow", ["POST"]);
-  res.status(405).end(`Method ${method} Not Allowed`);
+  res.setHeader('Allow', ['POST'])
+  return res.status(405).end(`Method ${method} Not Allowed`)
 }

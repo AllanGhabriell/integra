@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 export default function QuizFinal() {
   const router = useRouter()
   const { id, time, score } = router.query
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [total, setTotal] = useState(null)
   const [posted, setPosted] = useState(false)
 
@@ -19,23 +19,39 @@ export default function QuizFinal() {
       .catch(() => setTotal(0))
   }, [id])
 
-  // envia resultado ao servidor (uma só vez)
+  // envia resultado ao servidor (uma só vez, com token carregado)
   useEffect(() => {
-    if (session && id && time && score && total != null && !posted) {
+    if (
+      status === 'authenticated' &&
+      id &&
+      time != null &&
+      score != null &&
+      total != null &&
+      !posted
+    ) {
       fetch('/api/resultados', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           quizId: id,
-          userId: session.user.id,
           time: Number(time),
           score: Number(score)
-        })
+        }),
+        credentials: 'include'
       })
-        .then(() => setPosted(true))
-        .catch(() => {})
+        .then(async res => {
+          if (!res.ok) {
+            const data = await res.json()
+            console.error('Erro ao enviar resultado:', data)
+            throw new Error(data.message || 'Falha ao enviar')
+          }
+          setPosted(true)
+        })
+        .catch(err => {
+          console.error(err)
+        })
     }
-  }, [session, id, time, score, total, posted])
+  }, [status, id, time, score, total, posted])
 
   if (total === null) return <p className="p-4">Carregando resultados…</p>
 
