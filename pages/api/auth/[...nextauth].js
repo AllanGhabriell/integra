@@ -17,7 +17,7 @@ export default NextAuth({
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Tentando autenticar usuário:", credentials.email);
+        // Conexão
         try {
           await connectToDatabase();
         } catch (error) {
@@ -25,6 +25,7 @@ export default NextAuth({
           throw new Error("Erro interno de conexão");
         }
 
+        // Busca usuário
         let user;
         try {
           user = await User.findOne({ email: credentials.email });
@@ -33,8 +34,11 @@ export default NextAuth({
           throw new Error("Erro interno ao buscar usuário");
         }
 
-        if (!user) throw new Error("Email ou senha incorretos");
+        if (!user) {
+          throw new Error("Email ou senha incorretos");
+        }
 
+        // Valida senha
         let passwordMatch;
         try {
           passwordMatch = await bcrypt.compare(
@@ -42,17 +46,20 @@ export default NextAuth({
             user.passwordHash
           );
         } catch (error) {
+          console.error("Erro ao validar senha:", error);
           throw new Error("Erro interno ao validar senha");
         }
 
-        if (!passwordMatch) throw new Error("Email ou senha incorretos");
+        if (!passwordMatch) {
+          throw new Error("Email ou senha incorretos");
+        }
 
+        // Retorna dados do usuário
         return {
-          id: user._id,
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
-          role: user.role,
-          // image: user.image, // REMOVIDO: imagem não vai mais no token
+          role: user.role
         };
       },
     }),
@@ -68,20 +75,22 @@ export default NextAuth({
   },
 
   callbacks: {
-    async session({ session, token }) {
-      session.user.id = token.sub;
-      session.user.role = token.role;
-      // session.user.image = token.image // REMOVIDO: não passa mais imagem pela sessão
-      return session;
-    },
-
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
+        token.name = user.name;
+        token.email = user.email;
         token.role = user.role;
-        // token.image = user.image // REMOVIDO: imagem não será mais armazenada no token
       }
       return token;
+    },
+
+    async session({ session, token }) {
+      session.user.id = token.sub;
+      session.user.name = token.name;
+      session.user.email = token.email;
+      session.user.role = token.role;
+      return session;
     },
   },
 

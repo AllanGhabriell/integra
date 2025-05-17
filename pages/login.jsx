@@ -2,7 +2,8 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/router'
-import { EyeIcon, EyeOffIcon } from '@heroicons/react/solid'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid'
+
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -102,7 +103,7 @@ export default function Login() {
       </p>
 
       <style jsx>{`
-                .container {
+                        .container {
           position: relative;
           width: 100vw;
           height: 100vh;
