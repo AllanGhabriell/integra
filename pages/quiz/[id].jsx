@@ -13,7 +13,6 @@ export default function QuizPage() {
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef(null)
 
-  // Busca o quiz
   useEffect(() => {
     if (!id) return
     fetch(`/api/quizzes/${id}`)
@@ -30,7 +29,6 @@ export default function QuizPage() {
       })
   }, [id])
 
-  // Inicia cronômetro
   useEffect(() => {
     if (loading) return
     timerRef.current = setInterval(() => {
@@ -44,60 +42,141 @@ export default function QuizPage() {
   const question = quiz.questions[currentQ]
   const isLast = currentQ === quiz.questions.length - 1
 
-  function handleNext() {
-    // atualiza score
-    if (selected === question.correctIndex) {
+  function handleSelect(idx) {
+    setSelected(idx)
+
+    if (idx === question.correctIndex) {
       setScore(s => s + 1)
     }
-    setSelected(null)
-    if (isLast) {
-      clearInterval(timerRef.current)
-      router.push(`/quizFinal/${id}?time=${elapsed}&score=${score + (selected === question.correctIndex ? 1 : 0)}`)
-    } else {
-      setCurrentQ(q => q + 1)
-    }
+
+    setTimeout(() => {
+      setSelected(null)
+      if (isLast) {
+        clearInterval(timerRef.current)
+        router.push(`/quizFinal/${id}?time=${elapsed}&score=${score + (idx === question.correctIndex ? 1 : 0)}`)
+      } else {
+        setCurrentQ(q => q + 1)
+      }
+    }, 1000)
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <button
-        className="mb-4 text-red-500"
-        onClick={() => router.push('/')}
-      >
-        X
-      </button>
+    <div className="container">
+      <button className="close-btn" onClick={() => router.push('/')}>X</button>
 
-      <div className="mb-6">
-        <span>Cronômetro: {elapsed}s</span>
-      </div>
+      <div className="timer">Cronômetro: {elapsed}s</div>
 
-      <div className="border p-4 rounded">
-        <h2 className="text-xl font-semibold mb-4">
-          {question.text}
-        </h2>
-        <ul className="space-y-2">
-          {question.options.map((opt, idx) => (
-            <li key={idx}>
-              <button
-                className={`w-full text-left p-2 border rounded ${
-                  selected === idx ? 'bg-blue-100' : ''
-                }`}
-                onClick={() => setSelected(idx)}
-              >
-                {opt}
-              </button>
-            </li>
-          ))}
+      <div className="question-box">
+        <h2 className="question-text">{question.text}</h2>
+        <ul className="options">
+          {question.options.map((opt, idx) => {
+            let className = "option-btn"
+            if (selected !== null) {
+              if (idx === selected) {
+                className += idx === question.correctIndex ? " correct" : " incorrect"
+              } else if (idx === question.correctIndex) {
+                className += " correct"
+              }
+            }
+            return (
+              <li key={idx}>
+                <button
+                  className={className}
+                  onClick={() => handleSelect(idx)}
+                  disabled={selected !== null}
+                >
+                  {opt}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       </div>
 
-      <button
-        className="mt-6 p-2 bg-green-500 text-white rounded disabled:opacity-50"
-        onClick={handleNext}
-        disabled={selected === null}
-      >
-        {isLast ? 'Finalizar' : 'Próxima'}
-      </button>
+      <style jsx>{`
+        .container {
+          height: 100vh;
+          background: linear-gradient(270deg, #000000, #2E0249, #000428);
+          background-size: 600% 600%;
+          animation: gradientBG 15s ease infinite;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 30px 20px;
+          color: white;
+        }
+
+        @keyframes gradientBG {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .close-btn {
+          align-self: flex-start;
+          font-size: 1.5rem;
+          color: white;
+          background: none;
+          border: none;
+          cursor: pointer;
+          margin-bottom: 20px;
+        }
+
+        .timer {
+          font-size: 1.2rem;
+          margin-bottom: 20px;
+        }
+
+        .question-box {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid white;
+          border-radius: 16px;
+          padding: 20px;
+          width: 100%;
+          max-width: 500px;
+        }
+
+        .question-text {
+          font-size: 1.4rem;
+          margin-bottom: 20px;
+        }
+
+        .options {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .option-btn {
+          width: 100%;
+          text-align: left;
+          padding: 12px;
+          margin-bottom: 10px;
+          border: 1px solid white;
+          background: transparent;
+          color: white;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .option-btn.correct {
+          background-color: #2dff7e;
+          color: black;
+          font-weight: bold;
+          box-shadow: 0 0 10px #2dff7e;
+        }
+
+        .option-btn.incorrect {
+          background-color: #ff4b4b;
+          color: black;
+          font-weight: bold;
+          box-shadow: 0 0 10px #ff4b4b;
+        }
+      `}</style>
     </div>
   )
 }

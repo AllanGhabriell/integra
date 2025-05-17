@@ -7,7 +7,6 @@ export default function CriarQuiz() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  // Redireciona se não for admin
   useEffect(() => {
     if (status === 'loading') return
     if (!session?.user?.role || session.user.role !== 'admin') {
@@ -15,19 +14,18 @@ export default function CriarQuiz() {
     }
   }, [session, status, router])
 
-  // Estado do form
   const [title, setTitle] = useState('')
   const [questions, setQuestions] = useState(
     Array.from({ length: 5 }, () => ({ text: '', options: ['', ''], correctIndex: null }))
   )
   const [submitting, setSubmitting] = useState(false)
 
-  // Handlers de perguntas/opções
   function updateQuestion(idx, field, value) {
     setQuestions(qs =>
       qs.map((q, i) => (i === idx ? { ...q, [field]: value } : q))
     )
   }
+
   function updateOption(qIdx, oIdx, value) {
     setQuestions(qs =>
       qs.map((q, i) =>
@@ -37,6 +35,7 @@ export default function CriarQuiz() {
       )
     )
   }
+
   function addOption(qIdx) {
     setQuestions(qs =>
       qs.map((q, i) =>
@@ -44,149 +43,211 @@ export default function CriarQuiz() {
       )
     )
   }
+
   function removeOption(qIdx, oIdx) {
     setQuestions(qs =>
       qs.map((q, i) =>
         i === qIdx
-          ? {
-              ...q,
-              options: q.options.filter((_, j) => j !== oIdx),
-              correctIndex:
-                q.correctIndex === oIdx ? null : q.correctIndex > oIdx ? q.correctIndex - 1 : q.correctIndex
-            }
+          ? { ...q, options: q.options.filter((_, j) => j !== oIdx) }
           : q
       )
     )
   }
-  function addQuestion() {
-    if (questions.length < 10) {
-      setQuestions(qs => [...qs, { text: '', options: ['', ''], correctIndex: null }])
-    }
-  }
-  function removeQuestion(idx) {
-    if (questions.length > 5) {
-      setQuestions(qs => qs.filter((_, i) => i !== idx))
-    }
-  }
 
-  // Validação simples
-  const isValid =
-    title.trim() !== '' &&
-    questions.every(
-      q =>
-        q.text.trim() !== '' &&
-        q.options.length >= 2 &&
-        q.options.every(opt => opt.trim() !== '') &&
-        q.correctIndex != null
+  function setCorrect(qIdx, oIdx) {
+    setQuestions(qs =>
+      qs.map((q, i) => (i === qIdx ? { ...q, correctIndex: oIdx } : q))
     )
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!isValid) return
     setSubmitting(true)
     const res = await fetch('/api/quizzes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, questions })
+      body: JSON.stringify({ title, questions }),
     })
+    setSubmitting(false)
     if (res.ok) {
       router.push('/admin')
     } else {
-      alert('Erro ao salvar quiz')
-      setSubmitting(false)
+      alert('Erro ao criar quiz.')
     }
   }
 
-  if (status === 'loading') {
-    return <p className="p-4">Validando usuário…</p>
-  }
-
-  // Se não for admin, não renderiza o form (evita flash momentâneo)
-  if (!session?.user?.role || session.user.role !== 'admin') {
-    return null
-  }
-
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <button className="mb-4 text-red-500" onClick={() => router.push('/admin')}>
-        X
-      </button>
-      <h1 className="text-2xl font-bold mb-4">Criar Quiz</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block mb-1">Título do Quiz</label>
+    <div className="container">
+      <button className="close-btn" onClick={() => router.push('/')}>X</button>
+      <h1 className="title">Criar Quiz</h1>
+      <form onSubmit={handleSubmit} className="form">
+        <label>
+          Título do Quiz
           <input
-            type="text"
+            className="input"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full border p-2 rounded"
+            required
           />
-        </div>
+        </label>
 
-        {questions.map((q, qi) => (
-          <div key={qi} className="border p-4 rounded space-y-2">
-            <div className="flex justify-between items-center">
-              <strong>Pergunta {qi + 1}</strong>
-              {questions.length > 5 && (
-                <button type="button" onClick={() => removeQuestion(qi)}>
-                  Remover pergunta
-                </button>
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder="Texto da pergunta"
-              value={q.text}
-              onChange={e => updateQuestion(qi, 'text', e.target.value)}
-              className="w-full border p-2 rounded"
-            />
-            <div className="space-y-2">
-              {q.options.map((opt, oi) => (
-                <div key={oi} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name={`correct-${qi}`}
-                    checked={q.correctIndex === oi}
-                    onChange={() => updateQuestion(qi, 'correctIndex', oi)}
-                  />
-                  <input
-                    type="text"
-                    placeholder={`Opção ${oi + 1}`}
-                    value={opt}
-                    onChange={e => updateOption(qi, oi, e.target.value)}
-                    className="flex-1 border p-2 rounded"
-                  />
-                  {q.options.length > 2 && (
-                    <button type="button" onClick={() => removeOption(qi, oi)}>
-                      −
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button type="button" onClick={() => addOption(qi)}>
-                + Opção
-              </button>
-            </div>
+        {questions.map((q, qIdx) => (
+          <div key={qIdx} className="question-block">
+            <label>
+              Pergunta {qIdx + 1}
+              <input
+                className="input"
+                value={q.text}
+                onChange={e => updateQuestion(qIdx, 'text', e.target.value)}
+                required
+              />
+            </label>
+
+            {q.options.map((opt, oIdx) => (
+              <div key={oIdx} className="option-row">
+                <input
+                  className="input"
+                  value={opt}
+                  onChange={e => updateOption(qIdx, oIdx, e.target.value)}
+                  required
+                />
+                <input
+                  type="radio"
+                  name={`correct-${qIdx}`}
+                  checked={q.correctIndex === oIdx}
+                  onChange={() => setCorrect(qIdx, oIdx)}
+                />
+                <button type="button" className="remove-btn" onClick={() => removeOption(qIdx, oIdx)}>−</button>
+              </div>
+            ))}
+
+            <button type="button" className="btn" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
           </div>
         ))}
 
-        <div className="space-x-2">
-          {questions.length < 10 && (
-            <button type="button" onClick={addQuestion}>
-              + Pergunta
-            </button>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={!isValid || submitting}
-          className="w-full bg-green-500 text-white p-2 rounded disabled:opacity-50"
-        >
-          {submitting ? 'Salvando...' : 'Salvar quiz'}
+        <button type="submit" className="btn" disabled={submitting}>
+          {submitting ? 'Salvando...' : 'Salvar Quiz'}
         </button>
       </form>
+
+      <style jsx>{`
+        .container {
+          position: relative;
+          width: 100vw;
+          min-height: 100vh;
+          background: linear-gradient(270deg, #000000, #2E0249, #000428);
+          background-size: 600% 600%;
+          animation: gradientBG 15s ease infinite;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 40px 20px;
+          color: white;
+        }
+
+        @keyframes gradientBG {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .close-btn {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+        }
+
+        .title {
+          font-size: 2.5rem;
+          margin-bottom: 30px;
+          user-select: none;
+        }
+
+        .form {
+          width: 100%;
+          max-width: 600px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        label {
+          display: flex;
+          flex-direction: column;
+          font-size: 1.2rem;
+          user-select: none;
+        }
+
+        .input {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid white;
+          border-radius: 8px;
+          padding: 12px 15px;
+          color: white;
+          font-size: 1rem;
+          outline: none;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input:focus {
+          border-color: #8b2af8;
+          box-shadow: 0 0 10px #8b2af8;
+        }
+
+        .question-block {
+          border-top: 1px solid rgba(255,255,255,0.2);
+          padding-top: 15px;
+        }
+
+        .option-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-top: 10px;
+        }
+
+        .remove-btn {
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 1.2rem;
+          cursor: pointer;
+        }
+
+        .btn {
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid white;
+          border-radius: 8px;
+          color: white;
+          font-size: 1.1rem;
+          padding: 12px 0;
+          cursor: pointer;
+          transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+          transform: translateY(-3px);
+          border-color: #8b2af8;
+          box-shadow: 0 0 12px #8b2af8;
+        }
+
+        @media (max-width: 480px) {
+          .title {
+            font-size: 2rem;
+          }
+
+          .form {
+            max-width: 100%;
+          }
+        }
+      `}</style>
     </div>
   )
 }

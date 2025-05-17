@@ -13,13 +13,8 @@ export default function CriarConta() {
   const [error, setError] = useState(null)
   const router = useRouter()
 
-  // Validação de campos e senha
   const isPasswordValid = password.trim().length >= 6
-  const canSubmit =
-    name.trim() !== '' &&
-    email.trim() !== '' &&
-    isPasswordValid &&
-    file !== null
+  const canSubmit = name.trim() !== '' && email.trim() !== '' && isPasswordValid
 
   function handleFileChange(e) {
     const f = e.target.files[0]
@@ -38,8 +33,7 @@ export default function CriarConta() {
     setLoading(true)
     setError(null)
 
-    // Converte imagem em base64 (já em preview)
-    const imageData = preview
+    const imageData = preview || null
 
     try {
       const res = await fetch('/api/usuarios', {
@@ -53,16 +47,13 @@ export default function CriarConta() {
         throw new Error(json.message || 'Erro ao criar conta')
       }
 
-      // Faz login automático
       const login = await signIn('credentials', {
         redirect: false,
         email,
         password
       })
 
-      if (login.error) {
-        throw new Error(login.error)
-      }
+      if (login.error) throw new Error(login.error)
 
       alert('Conta criada com sucesso')
       router.push('/perfil')
@@ -73,77 +64,169 @@ export default function CriarConta() {
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <button
-        className="mb-4 text-red-500"
-        onClick={() => router.push('/login')}
-      >
-        X
-      </button>
+    <div className="container">
+      <button className="close-btn" onClick={() => router.push('/login')}>X</button>
+      <div className="form-box">
+        <h1 className="title">Criar Conta</h1>
 
-      <h1 className="text-2xl font-bold mb-4">Criar Conta</h1>
+        {error && <p className="error-msg">{error}</p>}
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Nome</label>
+        <form onSubmit={handleSubmit} className="form">
+          <label>Nome</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full border p-2 rounded"
           />
-        </div>
 
-        <div>
-          <label className="block mb-1">Email</label>
+          <label>Email</label>
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full border p-2 rounded"
           />
-        </div>
 
-        <div>
-          <label className="block mb-1">Senha</label>
+          <label>Senha</label>
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border p-2 rounded"
           />
           {!isPasswordValid && password && (
-            <p className="text-red-500 text-sm mt-1">A senha deve ter pelo menos 6 caracteres.</p>
+            <p className="error-text">A senha deve ter pelo menos 6 caracteres.</p>
           )}
-        </div>
 
-        <div>
-          <label className="block mb-1">Foto de Perfil</label>
+          <label>Foto de Perfil (opcional)</label>
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full"
           />
           {preview && (
-            <img
-              src={preview}
-              alt="Prévia"
-              className="mt-2 w-24 h-24 object-cover rounded-full"
-            />
+            <img src={preview} alt="Prévia" className="preview" />
           )}
-        </div>
 
-        <button
-          type="submit"
-          disabled={!canSubmit || loading}
-          className="w-full bg-green-500 text-white p-2 rounded disabled:opacity-50"
-        >
-          {loading ? 'Criando...' : 'Criar conta'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={!canSubmit || loading}
+            className="submit-btn"
+          >
+            {loading ? 'Criando...' : 'Criar conta'}
+          </button>
+        </form>
+      </div>
+
+      <style jsx>{`
+        .container {
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: linear-gradient(270deg, #000000, #2E0249, #000428);
+          background-size: 600% 600%;
+          animation: gradientBG 15s ease infinite;
+          color: white;
+          position: relative;
+        }
+
+        @keyframes gradientBG {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .close-btn {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+          color: #f87171;
+          text-shadow: 0 0 8px #f87171;
+        }
+
+        .form-box {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid white;
+          border-radius: 16px;
+          padding: 30px;
+          width: 90%;
+          max-width: 400px;
+        }
+
+        .title {
+          font-size: 1.8rem;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+
+        .form {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        label {
+          font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="file"] {
+          padding: 10px;
+          border-radius: 8px;
+          border: none;
+        }
+
+        .preview {
+          margin-top: 10px;
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid white;
+          align-self: center;
+        }
+
+        .submit-btn {
+          padding: 10px;
+          border: 1px solid white;
+          background: transparent;
+          color: white;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .submit-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .submit-btn:hover:enabled {
+          background: white;
+          color: black;
+        }
+
+        .error-msg {
+          color: #f87171;
+          text-align: center;
+          margin-bottom: 10px;
+        }
+
+        .error-text {
+          font-size: 0.85rem;
+          color: #f87171;
+        }
+      `}</style>
     </div>
   )
 }
