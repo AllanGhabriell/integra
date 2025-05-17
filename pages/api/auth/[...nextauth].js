@@ -75,12 +75,31 @@ export default NextAuth({
   },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.sub = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.role = user.role;
+    async jwt({ token, user, account, profile }) {
+      // Primeiro login: trate providers
+      if (account) {
+        if (account.provider === 'google') {
+          // Conectar e sincronizar usuário Google
+          await connectToDatabase();
+          let dbUser = await User.findOne({ email: profile.email });
+          if (!dbUser) {
+            dbUser = await User.create({
+              name: profile.name,
+              email: profile.email,
+              passwordHash: '',
+              role: 'user',
+              image: profile.picture || ''
+            });
+          }
+          token.sub = dbUser._id.toString();
+          token.role = dbUser.role;
+        } else {
+          // Credentials
+          token.sub = user.id;
+          token.role = user.role;
+        }
+        token.name = token.name || profile?.name || user?.name;
+        token.email = token.email || profile?.email || user?.email;
       }
       return token;
     },
