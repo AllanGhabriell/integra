@@ -35,6 +35,10 @@ export default function Perfil() {
 
         <style jsx>{`
           .container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -44,6 +48,7 @@ export default function Perfil() {
             background-size: 600% 600%;
             animation: gradientBG 15s ease infinite;
             color: white;
+            overflow: hidden;
           }
           .login-btn {
             padding: 10px 20px;
@@ -56,6 +61,16 @@ export default function Perfil() {
           @keyframes gradientBG {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
+          }
+        `}</style>
+
+        <style jsx global>{`
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
           }
         `}</style>
       </div>
@@ -93,7 +108,10 @@ export default function Perfil() {
 
       <style jsx>{`
         .container {
-          position: relative;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
           height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
@@ -101,6 +119,7 @@ export default function Perfil() {
           display: flex;
           justify-content: center;
           align-items: center;
+          overflow: hidden;
         }
 
         @keyframes gradientBG {
@@ -184,6 +203,15 @@ export default function Perfil() {
         .logout-btn:hover {
           background: white;
           color: black;
+        }
+      `}</style>
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

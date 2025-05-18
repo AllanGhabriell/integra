@@ -19,45 +19,16 @@ export default function Home() {
       .catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <p className="loading">Carregando quizzes…</p>
+  // if (loading) return <p className="loading">Carregando quizzes…</p>
 
-  return (
-    <div className="container">
-      <header className="header">
-        {!session && (
-          <button className="btn" onClick={() => router.push('/login')}>Login</button>
-        )}
-        {session && (
-          <button className="btn" onClick={() => router.push('/perfil')}>Perfil</button>
-        )}
-        {session?.user.role === 'admin' && (
-          <button className="btn" onClick={() => router.push('/admin')}>Admin</button>
-        )}
-      </header>
-      <main className="main">
-        <h1 className="title">YesOrNo</h1>
-        {quizzes.length === 0 ? (
-          <div className="empty">
-            <p>Nenhum quiz disponível</p>
-            {session?.user.role === 'admin' && (
-              <button className="btn" onClick={() => router.push('/criarQuiz')}>Criar Quiz</button>
-            )}
-          </div>
-        ) : (
-          <div className="grid">
-            {session?.user.role === 'admin' && (
-              <button className="btn full" onClick={() => router.push('/criarQuiz')}>+ Criar Quiz</button>
-            )}
-            {quizzes.map(quiz => (
-              <div key={quiz._id} className="card">
-                <h2 className="card-title">{quiz.title}</h2>
-                <button className="btn" onClick={() => router.push(`/quiz/${quiz._id}`)}>Jogar</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-      <style jsx>{`
+  const newLocal = `
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
+        }
         .container {
           position: relative;
           width: 100vw;
@@ -150,7 +121,74 @@ export default function Home() {
           color: white;
           font-size: 1.2rem;
         }
-      `}</style>
+        .ranking-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          color: white;
+          border: 1px solid white;
+          border-radius: 8px;
+          padding: 10px 20px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: box-shadow 0.3s ease, border-color 0.3s ease;
+          z-index: 2;
+        }
+        .ranking-btn:hover {
+          border-color: #FFFF00;
+          box-shadow: 0 0 10px #FFFF00;
+        }
+      `
+  return (
+    <div className="container">
+      <header className="header">
+        {!session && (
+          <button className="btn" onClick={() => router.push('/login')}>Login</button>
+        )}
+        {session && (
+          <button className="btn" onClick={() => router.push('/perfil')}>Perfil</button>
+        )}
+        {session?.user.role === 'admin' && (
+          <button className="btn" onClick={() => router.push('/admin')}>Admin</button>
+        )}
+      </header>
+
+      {/* Botão Ranking */}
+      <button
+        className="btn ranking-btn"
+        onClick={() => router.push('/ranking')}
+      >
+        Ranking
+      </button>
+
+      <main className="main">
+        <h1 className="title">YesOrNo</h1>
+
+        {quizzes.length === 0 ? (
+          <div className="empty">
+            <p>Nenhum quiz disponível</p>
+            {session?.user.role === 'admin' && (
+              <button className="btn" onClick={() => router.push('/criarQuiz')}>Criar Quiz</button>
+            )}
+          </div>
+        ) : (
+          <div className="grid">
+            {session?.user.role === 'admin' && (
+              <button className="btn full" onClick={() => router.push('/criarQuiz')}>+ Criar Quiz</button>
+            )}
+            {quizzes.map(quiz => (
+              <div key={quiz._id} className="card">
+                <h2 className="card-title">{quiz.title}</h2>
+                <button className="btn" onClick={() => router.push(`/quiz/${quiz._id}`)}>Jogar</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <style jsx>{newLocal}</style>
     </div>
   )
 }

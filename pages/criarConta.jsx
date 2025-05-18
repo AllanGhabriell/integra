@@ -118,15 +118,19 @@ export default function CriarConta() {
 
       <style jsx>{`
         .container {
-          height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          min-height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
+          display: flex;
+          justify-content: center;
+          align-items: center;
           color: white;
-          position: relative;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -225,6 +229,16 @@ export default function CriarConta() {
         .error-text {
           font-size: 0.85rem;
           color: #f87171;
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

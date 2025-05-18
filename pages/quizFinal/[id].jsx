@@ -65,10 +65,10 @@ export default function QuizFinal() {
         <p className="stat">Tempo: {seconds}s</p>
         <div className="button-group">
           <button className="icon-button" onClick={() => router.push(`/quiz/${id}`)}>
-            🔁
+            Tentar Novamente
           </button>
           <button className="icon-button" onClick={() => router.push('/')}>
-            🚪
+            Sair
           </button>
         </div>
       </div>
@@ -136,6 +136,15 @@ export default function QuizFinal() {
         .icon-button:hover {
           background: white;
           color: black;
+        }
+      `}</style>
+        <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;  /* elimina qualquer scroll horizontal */
         }
       `}</style>
     </div>

@@ -1,4 +1,3 @@
-// pages/admin.jsx
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
@@ -27,18 +26,6 @@ export default function Admin() {
       .catch(() => setLoading(false))
   }, [session])
 
-  function handleDelete(id) {
-    if (!confirm('Deseja realmente apagar este quiz?')) return
-    fetch(`/api/quizzes/${id}`, { method: 'DELETE' })
-      .then(res => {
-        if (res.ok) {
-          setQuizzes(qs => qs.filter(q => q._id !== id))
-        } else {
-          alert('Erro ao apagar quiz')
-        }
-      })
-  }
-
   if (status === 'loading' || loading) {
     return <p className="loading">Carregando...</p>
   }
@@ -63,7 +50,17 @@ export default function Admin() {
               <span className="quiz-title">{quiz.title}</span>
               <div className="quiz-actions">
                 <button onClick={() => router.push(`/editQuiz/${quiz._id}`)}>Editar</button>
-                <button onClick={() => handleDelete(quiz._id)}>Apagar</button>
+                <button onClick={() => {
+                  if (!confirm('Deseja realmente apagar este quiz?')) return
+                  fetch(`/api/quizzes/${quiz._id}`, { method: 'DELETE' })
+                    .then(res => {
+                      if (res.ok) {
+                        setQuizzes(qs => qs.filter(q => q._id !== quiz._id))
+                      } else {
+                        alert('Erro ao apagar quiz')
+                      }
+                    })
+                }}>Apagar</button>
               </div>
             </li>
           ))}
@@ -72,13 +69,19 @@ export default function Admin() {
 
       <style jsx>{`
         .container {
-          min-height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
           padding: 40px 20px;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
           color: white;
           font-family: sans-serif;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -166,6 +169,16 @@ export default function Admin() {
           padding: 20px;
           font-size: 1.2rem;
           color: white;
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

@@ -60,6 +60,10 @@ export default function CriarQuiz() {
     )
   }
 
+  function addQuestion() {
+    setQuestions(qs => [...qs, { text: '', options: ['', ''], correctIndex: null }])
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
@@ -78,7 +82,7 @@ export default function CriarQuiz() {
 
   return (
     <div className="container">
-      <button className="close-btn" onClick={() => router.push('/')}>X</button>
+      <button className="close-btn" onClick={() => router.push('/admin')}>X</button>
       <h1 className="title">Criar Quiz</h1>
       <form onSubmit={handleSubmit} className="form">
         <label>
@@ -121,19 +125,24 @@ export default function CriarQuiz() {
               </div>
             ))}
 
-            <button type="button" className="btn" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
+            <button type="button" className="btn small" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
           </div>
         ))}
 
-        <button type="submit" className="btn" disabled={submitting}>
+        <button type="button" className="btn add-q" onClick={addQuestion}>+ Adicionar Pergunta</button>
+
+        <button type="submit" className="btn submit" disabled={submitting}>
           {submitting ? 'Salvando...' : 'Salvar Quiz'}
         </button>
       </form>
 
       <style jsx>{`
-        .container {
+      
+.container {
           position: relative;
-          width: 100vw;
+          top: 0;
+          left: 0;
+          width: 100%;
           min-height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
@@ -144,6 +153,8 @@ export default function CriarQuiz() {
           justify-content: flex-start;
           padding: 40px 20px;
           color: white;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -246,6 +257,20 @@ export default function CriarQuiz() {
           .form {
             max-width: 100%;
           }
+        }
+        .btn.add-q {
+          margin-top: 20px;
+          width: fit-content;
+          align-self: center;
+        }
+      `}</style>
+            <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

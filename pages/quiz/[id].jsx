@@ -2,6 +2,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 
+function shuffleArray(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export default function QuizPage() {
   const router = useRouter()
   const { id } = router.query
@@ -21,7 +30,9 @@ export default function QuizPage() {
         return res.json()
       })
       .then(data => {
-        setQuiz(data)
+        // embaralha as perguntas
+        const shuffledQuestions = shuffleArray(data.questions)
+        setQuiz({ ...data, questions: shuffledQuestions })
         setLoading(false)
       })
       .catch(() => {
@@ -44,16 +55,16 @@ export default function QuizPage() {
 
   function handleSelect(idx) {
     setSelected(idx)
-
     if (idx === question.correctIndex) {
       setScore(s => s + 1)
     }
-
     setTimeout(() => {
       setSelected(null)
       if (isLast) {
         clearInterval(timerRef.current)
-        router.push(`/quizFinal/${id}?time=${elapsed}&score=${score + (idx === question.correctIndex ? 1 : 0)}`)
+        router.push(
+          `/quizFinal/${id}?time=${elapsed}&score=${ score + (idx === question.correctIndex ? 1 : 0) }`
+        )
       } else {
         setCurrentQ(q => q + 1)
       }
@@ -63,9 +74,7 @@ export default function QuizPage() {
   return (
     <div className="container">
       <button className="close-btn" onClick={() => router.push('/')}>X</button>
-
       <div className="timer">Cronômetro: {elapsed}s</div>
-
       <div className="question-box">
         <h2 className="question-text">{question.text}</h2>
         <ul className="options">
@@ -95,7 +104,8 @@ export default function QuizPage() {
 
       <style jsx>{`
         .container {
-          height: 100vh;
+          width: 100%;
+          min-height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
@@ -104,6 +114,7 @@ export default function QuizPage() {
           align-items: center;
           padding: 30px 20px;
           color: white;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -175,6 +186,16 @@ export default function QuizPage() {
           color: black;
           font-weight: bold;
           box-shadow: 0 0 10px #ff4b4b;
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

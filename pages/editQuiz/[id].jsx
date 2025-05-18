@@ -16,7 +16,7 @@ export default function EditQuiz() {
   useEffect(() => {
     if (status === 'loading') return
     if (!session || session.user.role !== 'admin') {
-      router.replace('/')
+      router.replace('/');
       return
     }
     if (!id) return
@@ -42,7 +42,7 @@ export default function EditQuiz() {
 
   function updateQuestion(idx, field, value) {
     setQuestions(qs =>
-      qs.map((q, i) => (i === idx ? { ...q, [field]: value } : q))
+      qs.map((q, i) => i === idx ? { ...q, [field]: value } : q)
     )
   }
 
@@ -50,7 +50,7 @@ export default function EditQuiz() {
     setQuestions(qs =>
       qs.map((q, i) =>
         i === qIdx
-          ? { ...q, options: q.options.map((opt, j) => (j === oIdx ? value : opt)) }
+          ? { ...q, options: q.options.map((opt, j) => j === oIdx ? value : opt) }
           : q
       )
     )
@@ -85,8 +85,12 @@ export default function EditQuiz() {
 
   function setCorrect(qIdx, oIdx) {
     setQuestions(qs =>
-      qs.map((q, i) => (i === qIdx ? { ...q, correctIndex: oIdx } : q))
+      qs.map((q, i) => i === qIdx ? { ...q, correctIndex: oIdx } : q)
     )
+  }
+
+  function addQuestion() {
+    setQuestions(qs => [...qs, { text: '', options: ['', ''], correctIndex: null }])
   }
 
   async function handleSubmit(e) {
@@ -98,18 +102,15 @@ export default function EditQuiz() {
       body: JSON.stringify({ title, questions }),
     })
     setSubmitting(false)
-    if (res.ok) {
-      router.push('/admin')
-    } else {
-      alert('Erro ao salvar quiz.')
-    }
+    if (res.ok) router.push('/admin')
+    else alert('Erro ao salvar quiz.')
   }
 
   if (loading) return <p style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>Carregando...</p>
 
   return (
     <div className="container">
-      <button className="close-btn" onClick={() => router.push('/')}>X</button>
+      <button className="close-btn" onClick={() => router.push('/admin')}>X</button>
       <h1 className="title">Editar Quiz</h1>
       <form onSubmit={handleSubmit} className="form">
         <label>
@@ -152,19 +153,24 @@ export default function EditQuiz() {
               </div>
             ))}
 
-            <button type="button" className="btn" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
+            <button type="button" className="btn small" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
           </div>
         ))}
 
-        <button type="submit" className="btn" disabled={submitting}>
+        <button type="button" className="btn add-q" onClick={addQuestion}>+ Adicionar Pergunta</button>
+
+        <button type="submit" className="btn submit" disabled={submitting}>
           {submitting ? 'Salvando...' : 'Salvar Alterações'}
         </button>
       </form>
 
       <style jsx>{`
-        .container {
+      
+.container {
           position: relative;
-          width: 100vw;
+          top: 0;
+          left: 0;
+          width: 100%;
           min-height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
@@ -175,6 +181,8 @@ export default function EditQuiz() {
           justify-content: flex-start;
           padding: 40px 20px;
           color: white;
+          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -277,6 +285,20 @@ export default function EditQuiz() {
           .form {
             max-width: 100%;
           }
+        }
+        .btn.add-q {
+          margin-top: 20px;
+          width: fit-content;
+          align-self: center;
+        }
+      `}</style>
+            <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>

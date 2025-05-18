@@ -4,7 +4,6 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid'
 
-
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -68,7 +67,7 @@ export default function Login() {
               aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             >
               {showPassword ? (
-                <EyeOffIcon className="icon" />
+                <EyeSlashIcon className="icon" />
               ) : (
                 <EyeIcon className="icon" />
               )}
@@ -103,10 +102,10 @@ export default function Login() {
       </p>
 
       <style jsx>{`
-                        .container {
+        .container {
           position: relative;
-          width: 100vw;
-          height: 100vh;
+          width: 100%;
+          min-height: 100vh;
           background: linear-gradient(270deg, #000000, #2E0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
@@ -116,7 +115,7 @@ export default function Login() {
           justify-content: center;
           padding: 20px;
           color: white;
-          overflow: hidden;
+          overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -256,6 +255,16 @@ export default function Login() {
           form.form {
             max-width: 100%;
           }
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>
