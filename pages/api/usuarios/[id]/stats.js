@@ -1,19 +1,11 @@
 // pages/api/usuarios/[id]/stats.js
-import { connectToDatabase } from '../../../../lib/db'
-import Resultado from '@/models/Resultado'
-import User from '@/models/User'
-import { getToken } from 'next-auth/jwt'
-
-const SECRET = process.env.NEXTAUTH_SECRET
+import { connectToDatabase } from "../../../../lib/db"
+import Resultado from "@/models/Resultado"
+import User from "@/models/User"
 
 export default async function handler(req, res) {
   await connectToDatabase()
-  const token = await getToken({ req, secret: SECRET })
   const { method, query: { id } } = req
-
-  if (!token || (token.sub !== id && token.role !== 'admin')) {
-    return res.status(401).json({ message: 'Não autorizado' })
-  }
 
   if (method !== 'GET') {
     res.setHeader('Allow', ['GET'])
@@ -25,7 +17,6 @@ export default async function handler(req, res) {
     return res.status(404).json({ message: 'Usuário não encontrado' })
   }
 
-  // Agora usamos o modelo importado via alias @
   const resultados = await Resultado.find({ user: id }).populate('quiz', 'questions')
 
   const totalJogos = resultados.length

@@ -1,69 +1,64 @@
-import { useState, useEffect } from 'react'
+// pages/ranking.jsx
 import { useRouter } from 'next/router'
+import { connectToDatabase } from '../lib/db'
+import User from '../models/User'
+import Resultado from '../models/Resultado'
 
-export default function Ranking() {
+export async function getServerSideProps() {
+  await connectToDatabase()
+
+  // Busca todos os usuários (somente nome e _id)
+  const users = await User.find({}, 'name').lean()
+
+  // Agrupa resultados por usuário para contar total de jogos
+  const agg = await Resultado.aggregate([
+    { $group: { _id: '$user', totalJogos: { $sum: 1 } } }
+  ])
+
+  // Cria um mapa { userId: totalJogos }
+  const statsMap = Object.fromEntries(
+    agg.map(r => [r._id.toString(), r.totalJogos])
+  )
+
+  // Monta ranking e ordena
+  const ranking = users
+    .map(u => ({
+      _id: u._id.toString(),
+      name: u.name,
+      totalJogos: statsMap[u._id.toString()] || 0
+    }))
+    .sort((a, b) => b.totalJogos - a.totalJogos)
+
+  return { props: { ranking } }
+}
+
+export default function Ranking({ ranking }) {
   const router = useRouter()
-  const [ranking, setRanking] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const usersRes = await fetch('/api/usuarios')
-        const users = await usersRes.json()
-
-        const withStats = await Promise.all(
-          users.map(async u => {
-            const userId = u._id || u.id
-            try {
-              const statsRes = await fetch(`/api/usuarios/${u._id}/stats`)
-              if (!statsRes.ok) throw new Error('Stats fetch failed')
-              const stats = await statsRes.json()
-              return { ...u, totalJogos: stats.totalJogos }
-            } catch (err) {
-              console.warn(`Não foi possível carregar stats para ${u._id}, usando 0`)
-              return { ...u, totalJogos: 0 }
-            }
-          })
-        )
-
-        withStats.sort((a, b) => b.totalJogos - a.totalJogos)
-        setRanking(withStats)
-      } catch (error) {
-        console.error('Erro ao carregar usuários:', error)
-        setRanking([])
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [])
 
   return (
     <div className="container">
       <button className="close-btn" onClick={() => router.push('/')}>X</button>
       <h1 className="title">Ranking de Jogadores</h1>
 
-      {loading ? (
-        <p className="loading-text">Carregando ranking…</p>
+      {ranking.length > 0 ? (
+        <ul className="list">
+          {ranking.map((user, idx) => (
+            <li
+              key={user._id}
+              className={`item ${
+                idx === 0 ? 'rank1' :
+                idx === 1 ? 'rank2' :
+                idx === 2 ? 'rank3' : ''
+              }`}
+            >
+              <span className="position">{idx + 1}º</span>
+              <span className="name">{user.name}</span>
+              <span className="games">{user.totalJogos} jogos</span>
+            </li>
+          ))}
+        </ul>
       ) : (
-        ranking.length > 0 ? (
-          <ul className="list">
-            {ranking.map((user, idx) => (
-              <li
-                key={user._id}
-                className={`item ${
-                  idx === 0 ? 'rank1' : idx === 1 ? 'rank2' : idx === 2 ? 'rank3' : ''
-                }`}
-              >
-                <span className="position">{idx + 1}º</span>
-                <span className="name">{user.name}</span>
-                <span className="games">{user.totalJogos} jogos</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="loading-text">Nenhum dado disponível no ranking</p>
-        )
+        <p className="loading-text">Nenhum dado disponível no ranking</p>
       )}
 
       <style jsx>{`
@@ -90,13 +85,8 @@ export default function Ranking() {
         }
 
         @keyframes gradientBG {
-          0%,
-          100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
+          0%, 100% { background-position: 0% 50%; }
+          50%      { background-position: 100% 50%; }
         }
 
         .close-btn {
@@ -150,17 +140,9 @@ export default function Ranking() {
           user-select: none;
         }
 
-        .position {
-          font-size: 1.2rem;
-        }
-        .name {
-          font-size: 1.1rem;
-          overflow-wrap: break-word;
-        }
-        .games {
-          text-align: right;
-          font-size: 1rem;
-        }
+        .position { font-size: 1.2rem; }
+        .name     { font-size: 1.1rem; overflow-wrap: break-word; }
+        .games    { text-align: right; font-size: 1rem; }
 
         .rank1 {
           background: linear-gradient(45deg, #ffd700, #ffc200);
@@ -190,31 +172,17 @@ export default function Ranking() {
         }
 
         @media (max-width: 480px) {
-          .container {
-            padding: 10px;
-          }
-          .title {
-            margin-top: 40px;
-          }
-          .item {
-            padding: 10px;
-            gap: 4px;
-          }
-          .position {
-            font-size: 1rem;
-          }
-          .name {
-            font-size: 0.9rem;
-          }
-          .games {
-            font-size: 0.9rem;
-          }
+          .container { padding: 10px; }
+          .title { margin-top: 40px; }
+          .item { padding: 10px; gap: 4px; }
+          .position { font-size: 1rem; }
+          .name     { font-size: 0.9rem; }
+          .games    { font-size: 0.9rem; }
         }
       `}</style>
 
       <style jsx global>{`
-        html,
-        body {
+        html, body {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
