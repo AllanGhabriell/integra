@@ -1,39 +1,35 @@
-// pages/ranking.jsx
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 
 export default function Ranking() {
-  const { data: session, status } = useSession()
   const router = useRouter()
   const [ranking, setRanking] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'loading') return
-    (async () => {
+    ;(async () => {
       try {
-        const usersRes = await fetch('/api/usuarios', { credentials: 'include' })
+        const usersRes = await fetch('/api/usuarios')
         const users = await usersRes.json()
+
         const withStats = await Promise.all(
           users.map(async u => {
-            const statsRes = await fetch(
-              `/api/usuarios/${u._id}/stats`,
-              { credentials: 'include' }
-            )
+            const statsRes = await fetch(`/api/usuarios/${u._id}/stats`)
             const stats = await statsRes.json()
             return { ...u, totalJogos: stats.totalJogos }
           })
         )
+
         withStats.sort((a, b) => b.totalJogos - a.totalJogos)
         setRanking(withStats)
-      } catch {
+      } catch (error) {
+        console.error('Erro ao carregar ranking:', error)
         setRanking([])
       } finally {
         setLoading(false)
       }
     })()
-  }, [session, status])
+  }, [])
 
   return (
     <div className="container">
@@ -48,9 +44,7 @@ export default function Ranking() {
             <li
               key={user._id}
               className={`item ${
-                idx === 0 ? 'rank1' :
-                idx === 1 ? 'rank2' :
-                idx === 2 ? 'rank3' : ''
+                idx === 0 ? 'rank1' : idx === 1 ? 'rank2' : idx === 2 ? 'rank3' : ''
               }`}
             >
               <span className="position">{idx + 1}º</span>
@@ -73,7 +67,7 @@ export default function Ranking() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;   /* centraliza verticalmente */
+          justify-content: flex-start;
 
           padding: 20px;
           box-sizing: border-box;
@@ -81,7 +75,7 @@ export default function Ranking() {
           color: white;
           overflow-y: auto;
           overflow-x: hidden;
-          text-align: center;        /* centraliza textos */
+          text-align: center;
         }
 
         @keyframes gradientBG {
@@ -91,23 +85,28 @@ export default function Ranking() {
 
         .close-btn {
           position: absolute;
-          top: 20px;
-          left: 20px;
+          top: 10px;
+          left: 10px;
           background: transparent;
           border: none;
           color: white;
           font-size: 1.5rem;
           cursor: pointer;
+          z-index: 10;
         }
-
+        .close-btn:hover {
+          color: #8b2af8;
+          text-shadow: 0 0 8px #8b2af8;
+        }
+          
         .title {
-          font-size: 2.5rem;
-          margin-bottom: 20px;
+          font-size: 2rem;
+          margin: 60px 0 20px;
           user-select: none;
         }
 
         .loading-text {
-          font-size: 1.2rem;
+          font-size: 1rem;
           margin-bottom: 20px;
         }
 
@@ -116,10 +115,11 @@ export default function Ranking() {
           max-width: 600px;
           list-style: none;
           padding: 0;
-          margin: 0 auto;          /* centraliza a lista */
+          margin: 0 auto;
           display: flex;
           flex-direction: column;
-          gap: 15px;
+          gap: 12px;
+          padding-bottom: 40px;
         }
 
         .item {
@@ -135,7 +135,7 @@ export default function Ranking() {
         }
 
         .position { font-size: 1.2rem; }
-        .name     { font-size: 1.1rem; }
+        .name     { font-size: 1.1rem; overflow-wrap: break-word; }
         .games    { text-align: right; font-size: 1rem; }
 
         .rank1 {
@@ -148,14 +148,19 @@ export default function Ranking() {
           background: linear-gradient(45deg, #CD7F32, #B87333);
         }
 
+        @media (max-width: 768px) {
+          .title { font-size: 1.5rem; margin-top: 50px; }
+          .item { padding: 12px; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; gap: 6px; }
+          .games { grid-column: 1 / -1; text-align: center; }
+        }
+
         @media (max-width: 480px) {
-          .item {
-            grid-template-columns: 30px 1fr;
-            grid-template-rows: auto auto;
-            gap: 5px;
-            text-align: center;
-          }
-          .games { grid-column: 1 / -1; }
+          .container { padding: 10px; }
+          .title { margin-top: 40px; }
+          .item { padding: 10px; gap: 4px; }
+          .position { font-size: 1rem; }
+          .name     { font-size: 0.9rem; }
+          .games    { font-size: 0.9rem; }
         }
       `}</style>
 
