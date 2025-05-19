@@ -6,8 +6,8 @@ export default function Perfil() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [stats, setStats] = useState(null)
+  const [statsError, setStatsError] = useState(false)
 
-  // Definição de estilos para manter a formatação em todos os estados
   const styles = `
     html, body {
       margin: 0;
@@ -35,10 +35,11 @@ export default function Perfil() {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
     }
-    .loading-text, .login-text {
+    .loading-text, .login-text, .error-text {
       color: white;
       font-size: 1.2rem;
       margin-bottom: 20px;
+      text-align: center;
     }
     .login-btn, .logout-btn, .close-btn {
       padding: 10px 20px;
@@ -92,10 +93,12 @@ export default function Perfil() {
     .name {
       font-size: 1.8rem;
       margin-bottom: 10px;
+      word-break: break-word;
     }
     .stats {
       margin-bottom: 8px;
       font-size: 1.1rem;
+      word-break: break-word;
     }
     .logout-btn:hover {
       background: white;
@@ -106,7 +109,14 @@ export default function Perfil() {
   useEffect(() => {
     if (status === 'loading' || !session) return
 
-    fetch(`/api/usuarios/${session.user.id}/stats`, {
+    const userId = session.user.id || session.user._id
+    if (!userId) {
+      console.error('ID do usuário não encontrado em session.user')
+      setStatsError(true)
+      return
+    }
+
+    fetch(`/api/usuarios/${userId}/stats`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -114,12 +124,17 @@ export default function Perfil() {
       },
       credentials: 'include'
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
       .then(data => setStats(data))
-      .catch(err => console.error('Erro ao buscar stats:', err))
+      .catch(err => {
+        console.error('Erro ao buscar stats:', err)
+        setStatsError(true)
+      })
   }, [session, status])
 
-  // Estado de autenticação carregando
   if (status === 'loading') {
     return (
       <>
@@ -131,7 +146,6 @@ export default function Perfil() {
     )
   }
 
-  // Usuário não autenticado
   if (!session) {
     return (
       <>
@@ -144,7 +158,20 @@ export default function Perfil() {
     )
   }
 
-  // Estatísticas ainda carregando
+  if (statsError) {
+    return (
+      <>
+        <div className="container">
+          <p className="error-text">Não foi possível carregar estatísticas.</p>
+          <button className="logout-btn" onClick={() => { signOut(); router.push('/') }}>
+            Sair
+          </button>
+        </div>
+        <style jsx>{styles}</style>
+      </>
+    )
+  }
+
   if (!stats) {
     return (
       <>
@@ -156,7 +183,6 @@ export default function Perfil() {
     )
   }
 
-  // Estado normal com stats
   return (
     <>
       <div className="container">
