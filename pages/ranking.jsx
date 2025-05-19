@@ -1,50 +1,66 @@
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Ranking() {
-  const router = useRouter()
-  const [ranking, setRanking] = useState([])
-  const [loading, setLoading] = useState(true)
+  const router = useRouter();
+  const [ranking, setRanking] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const usersRes = await fetch('/api/usuarios')
-        const users = await usersRes.json()
+        const usersRes = await fetch("/api/usuarios");
+        const users = await usersRes.json();
 
         const withStats = await Promise.all(
-          users.map(async u => {
-            const statsRes = await fetch(`/api/usuarios/${u._id}/stats`)
-            const stats = await statsRes.json()
-            return { ...u, totalJogos: stats.totalJogos }
+          users.map(async (u) => {
+            try {
+              const statsRes = await fetch(`/api/usuarios/${u._id}/stats`);
+              if (!statsRes.ok) throw new Error("Stats fetch failed");
+              const stats = await statsRes.json();
+              return { ...u, totalJogos: stats.totalJogos };
+            } catch (err) {
+              console.warn(
+                `Não foi possível carregar stats para ${u._id}, usando 0`
+              );
+              return { ...u, totalJogos: 0 };
+            }
           })
-        )
+        );
 
-        withStats.sort((a, b) => b.totalJogos - a.totalJogos)
-        setRanking(withStats)
+        withStats.sort((a, b) => b.totalJogos - a.totalJogos);
+        setRanking(withStats);
       } catch (error) {
-        console.error('Erro ao carregar ranking:', error)
-        setRanking([])
+        console.error("Erro ao carregar usuários:", error);
+        setRanking([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   return (
     <div className="container">
-      <button className="close-btn" onClick={() => router.push('/')}>X</button>
+      <button className="close-btn" onClick={() => router.push("/")}>
+        X
+      </button>
       <h1 className="title">Ranking de Jogadores</h1>
 
       {loading ? (
         <p className="loading-text">Carregando ranking…</p>
-      ) : (
+      ) : ranking.length > 0 ? (
         <ul className="list">
           {ranking.map((user, idx) => (
             <li
               key={user._id}
               className={`item ${
-                idx === 0 ? 'rank1' : idx === 1 ? 'rank2' : idx === 2 ? 'rank3' : ''
+                idx === 0
+                  ? "rank1"
+                  : idx === 1
+                  ? "rank2"
+                  : idx === 2
+                  ? "rank3"
+                  : ""
               }`}
             >
               <span className="position">{idx + 1}º</span>
@@ -53,6 +69,8 @@ export default function Ranking() {
             </li>
           ))}
         </ul>
+      ) : (
+        <p className="loading-text">Nenhum dado disponível no ranking</p>
       )}
 
       <style jsx>{`
@@ -60,7 +78,7 @@ export default function Ranking() {
           position: relative;
           width: 100%;
           min-height: 100vh;
-          background: linear-gradient(270deg, #000000, #2E0249, #000428);
+          background: linear-gradient(270deg, #000000, #2e0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
 
@@ -79,8 +97,13 @@ export default function Ranking() {
         }
 
         @keyframes gradientBG {
-          0%, 100% { background-position: 0% 50%; }
-          50%      { background-position: 100% 50%; }
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
         }
 
         .close-btn {
@@ -98,7 +121,7 @@ export default function Ranking() {
           color: #8b2af8;
           text-shadow: 0 0 8px #8b2af8;
         }
-          
+
         .title {
           font-size: 2rem;
           margin: 60px 0 20px;
@@ -127,50 +150,83 @@ export default function Ranking() {
           grid-template-columns: 40px 1fr 80px;
           align-items: center;
           padding: 15px;
-          background: rgba(255,255,255,0.1);
+          background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(10px);
           border: 1px solid white;
           border-radius: 8px;
           user-select: none;
         }
 
-        .position { font-size: 1.2rem; }
-        .name     { font-size: 1.1rem; overflow-wrap: break-word; }
-        .games    { text-align: right; font-size: 1rem; }
+        .position {
+          font-size: 1.2rem;
+        }
+        .name {
+          font-size: 1.1rem;
+          overflow-wrap: break-word;
+        }
+        .games {
+          text-align: right;
+          font-size: 1rem;
+        }
 
         .rank1 {
-          background: linear-gradient(45deg, #FFD700, #FFC200);
+          background: linear-gradient(45deg, #ffd700, #ffc200);
         }
         .rank2 {
-          background: linear-gradient(45deg, #C0C0C0, #A9A9A9);
+          background: linear-gradient(45deg, #c0c0c0, #a9a9a9);
         }
         .rank3 {
-          background: linear-gradient(45deg, #CD7F32, #B87333);
+          background: linear-gradient(45deg, #cd7f32, #b87333);
         }
 
         @media (max-width: 768px) {
-          .title { font-size: 1.5rem; margin-top: 50px; }
-          .item { padding: 12px; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; gap: 6px; }
-          .games { grid-column: 1 / -1; text-align: center; }
+          .title {
+            font-size: 1.5rem;
+            margin-top: 50px;
+          }
+          .item {
+            padding: 12px;
+            grid-template-columns: 30px 1fr;
+            grid-template-rows: auto auto;
+            gap: 6px;
+          }
+          .games {
+            grid-column: 1 / -1;
+            text-align: center;
+          }
         }
 
         @media (max-width: 480px) {
-          .container { padding: 10px; }
-          .title { margin-top: 40px; }
-          .item { padding: 10px; gap: 4px; }
-          .position { font-size: 1rem; }
-          .name     { font-size: 0.9rem; }
-          .games    { font-size: 0.9rem; }
+          .container {
+            padding: 10px;
+          }
+          .title {
+            margin-top: 40px;
+          }
+          .item {
+            padding: 10px;
+            gap: 4px;
+          }
+          .position {
+            font-size: 1rem;
+          }
+          .name {
+            font-size: 0.9rem;
+          }
+          .games {
+            font-size: 0.9rem;
+          }
         }
       `}</style>
 
       <style jsx global>{`
-        html, body {
+        html,
+        body {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
         }
       `}</style>
     </div>
-  )
+  );
 }
