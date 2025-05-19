@@ -16,7 +16,7 @@ export default function EditQuiz() {
   useEffect(() => {
     if (status === 'loading') return
     if (!session || session.user.role !== 'admin') {
-      router.replace('/');
+      router.replace('/')
       return
     }
     if (!id) return
@@ -27,11 +27,13 @@ export default function EditQuiz() {
       })
       .then(data => {
         setTitle(data.title)
-        setQuestions(data.questions.map(q => ({
-          text: q.text,
-          options: [...q.options],
-          correctIndex: q.correctIndex
-        })))
+        setQuestions(
+          data.questions.map(q => ({
+            text: q.text,
+            options: [...q.options],
+            correctIndex: q.correctIndex,
+          }))
+        )
       })
       .catch(() => {
         alert('Quiz não encontrado')
@@ -42,7 +44,7 @@ export default function EditQuiz() {
 
   function updateQuestion(idx, field, value) {
     setQuestions(qs =>
-      qs.map((q, i) => i === idx ? { ...q, [field]: value } : q)
+      qs.map((q, i) => (i === idx ? { ...q, [field]: value } : q))
     )
   }
 
@@ -50,7 +52,7 @@ export default function EditQuiz() {
     setQuestions(qs =>
       qs.map((q, i) =>
         i === qIdx
-          ? { ...q, options: q.options.map((opt, j) => j === oIdx ? value : opt) }
+          ? { ...q, options: q.options.map((opt, j) => (j === oIdx ? value : opt)) }
           : q
       )
     )
@@ -76,7 +78,7 @@ export default function EditQuiz() {
                   ? null
                   : q.correctIndex > oIdx
                   ? q.correctIndex - 1
-                  : q.correctIndex
+                  : q.correctIndex,
             }
           : q
       )
@@ -85,12 +87,16 @@ export default function EditQuiz() {
 
   function setCorrect(qIdx, oIdx) {
     setQuestions(qs =>
-      qs.map((q, i) => i === qIdx ? { ...q, correctIndex: oIdx } : q)
+      qs.map((q, i) => (i === qIdx ? { ...q, correctIndex: oIdx } : q))
     )
   }
 
   function addQuestion() {
     setQuestions(qs => [...qs, { text: '', options: ['', ''], correctIndex: null }])
+  }
+
+  function removeQuestion(idx) {
+    setQuestions(qs => qs.filter((_, i) => i !== idx))
   }
 
   async function handleSubmit(e) {
@@ -106,11 +112,18 @@ export default function EditQuiz() {
     else alert('Erro ao salvar quiz.')
   }
 
-  if (loading) return <p style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>Carregando...</p>
+  if (loading)
+    return (
+      <p style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>
+        Carregando...
+      </p>
+    )
 
   return (
     <div className="container">
-      <button className="close-btn" onClick={() => router.push('/admin')}>X</button>
+      <button className="close-btn" onClick={() => router.push('/admin')}>
+        X
+      </button>
       <h1 className="title">Editar Quiz</h1>
       <form onSubmit={handleSubmit} className="form">
         <label>
@@ -125,15 +138,24 @@ export default function EditQuiz() {
 
         {questions.map((q, qIdx) => (
           <div key={qIdx} className="question-block">
-            <label>
-              Pergunta {qIdx + 1}
-              <input
-                className="input"
-                value={q.text}
-                onChange={e => updateQuestion(qIdx, 'text', e.target.value)}
-                required
-              />
-            </label>
+            <div className="question-header">
+              <label>
+                Pergunta {qIdx + 1}
+                <input
+                  className="input"
+                  value={q.text}
+                  onChange={e => updateQuestion(qIdx, 'text', e.target.value)}
+                  required
+                />
+              </label>
+              <button
+                type="button"
+                className="btn small"
+                onClick={() => removeQuestion(qIdx)}
+              >
+                Apagar Pergunta
+              </button>
+            </div>
 
             {q.options.map((opt, oIdx) => (
               <div key={oIdx} className="option-row">
@@ -149,15 +171,29 @@ export default function EditQuiz() {
                   checked={q.correctIndex === oIdx}
                   onChange={() => setCorrect(qIdx, oIdx)}
                 />
-                <button type="button" className="remove-btn" onClick={() => removeOption(qIdx, oIdx)}>−</button>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => removeOption(qIdx, oIdx)}
+                >
+                  −
+                </button>
               </div>
             ))}
 
-            <button type="button" className="btn small" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
+            <button
+              type="button"
+              className="btn small"
+              onClick={() => addOption(qIdx)}
+            >
+              Adicionar Opção
+            </button>
           </div>
         ))}
 
-        <button type="button" className="btn add-q" onClick={addQuestion}>+ Adicionar Pergunta</button>
+        <button type="button" className="btn add-q" onClick={addQuestion}>
+          + Adicionar Pergunta
+        </button>
 
         <button type="submit" className="btn submit" disabled={submitting}>
           {submitting ? 'Salvando...' : 'Salvar Alterações'}
@@ -165,14 +201,13 @@ export default function EditQuiz() {
       </form>
 
       <style jsx>{`
-      
-.container {
+        .container {
           position: relative;
           top: 0;
           left: 0;
           width: 100%;
           min-height: 100vh;
-          background: linear-gradient(270deg, #000000, #2E0249, #000428);
+          background: linear-gradient(270deg, #000000, #2e0249, #000428);
           background-size: 600% 600%;
           animation: gradientBG 15s ease infinite;
           display: flex;
@@ -186,8 +221,13 @@ export default function EditQuiz() {
         }
 
         @keyframes gradientBG {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
         }
 
         .close-btn {
@@ -240,8 +280,14 @@ export default function EditQuiz() {
         }
 
         .question-block {
-          border-top: 1px solid rgba(255,255,255,0.2);
+          border-top: 1px solid rgba(255, 255, 255, 0.2);
           padding-top: 15px;
+        }
+
+        .question-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
 
         .option-row {
@@ -260,7 +306,7 @@ export default function EditQuiz() {
         }
 
         .btn {
-          background: rgba(255,255,255,0.1);
+          background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(10px);
           border: 1px solid white;
           border-radius: 8px;
@@ -268,13 +314,19 @@ export default function EditQuiz() {
           font-size: 1.1rem;
           padding: 12px 0;
           cursor: pointer;
-          transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+          transition: transform 0.2s ease, border-color 0.3s ease,
+            box-shadow 0.3s ease;
         }
 
         .btn:hover {
           transform: translateY(-3px);
           border-color: #8b2af8;
           box-shadow: 0 0 12px #8b2af8;
+        }
+
+        .btn.small {
+          padding: 8px 12px;
+          font-size: 0.9rem;
         }
 
         @media (max-width: 480px) {
@@ -286,14 +338,16 @@ export default function EditQuiz() {
             max-width: 100%;
           }
         }
+
         .btn.add-q {
           margin-top: 20px;
           width: fit-content;
           align-self: center;
         }
       `}</style>
-            <style jsx global>{`
-        html, body {
+      <style jsx global>{`
+        html,
+        body {
           margin: 0;
           padding: 0;
           width: 100%;

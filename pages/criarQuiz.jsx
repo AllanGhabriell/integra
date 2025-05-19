@@ -64,6 +64,10 @@ export default function CriarQuiz() {
     setQuestions(qs => [...qs, { text: '', options: ['', ''], correctIndex: null }])
   }
 
+  function removeQuestion(idx) {
+    setQuestions(qs => qs.filter((_, i) => i !== idx))
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
@@ -97,15 +101,24 @@ export default function CriarQuiz() {
 
         {questions.map((q, qIdx) => (
           <div key={qIdx} className="question-block">
-            <label>
-              Pergunta {qIdx + 1}
-              <input
-                className="input"
-                value={q.text}
-                onChange={e => updateQuestion(qIdx, 'text', e.target.value)}
-                required
-              />
-            </label>
+            <div className="question-header">
+              <label>
+                Pergunta {qIdx + 1}
+                <input
+                  className="input"
+                  value={q.text}
+                  onChange={e => updateQuestion(qIdx, 'text', e.target.value)}
+                  required
+                />
+              </label>
+              <button
+                type="button"
+                className="btn small"
+                onClick={() => removeQuestion(qIdx)}
+              >
+                Apagar Pergunta
+              </button>
+            </div>
 
             {q.options.map((opt, oIdx) => (
               <div key={oIdx} className="option-row">
@@ -125,20 +138,22 @@ export default function CriarQuiz() {
               </div>
             ))}
 
-            <button type="button" className="btn small" onClick={() => addOption(qIdx)}>Adicionar Opção</button>
+            <button type="button" className="btn small" onClick={() => addOption(qIdx)}>
+              Adicionar Opção
+            </button>
           </div>
         ))}
 
-        <button type="button" className="btn add-q" onClick={addQuestion}>+ Adicionar Pergunta</button>
+        <button type="button" className="btn add-q" onClick={addQuestion}>
+          + Adicionar Pergunta
+        </button>
 
         <button type="submit" className="btn submit" disabled={submitting}>
           {submitting ? 'Salvando...' : 'Salvar Quiz'}
         </button>
       </form>
-
       <style jsx>{`
-      
-.container {
+        .container {
           position: relative;
           top: 0;
           left: 0;
@@ -216,6 +231,12 @@ export default function CriarQuiz() {
           padding-top: 15px;
         }
 
+        .question-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
         .option-row {
           display: flex;
           align-items: center;
@@ -249,6 +270,11 @@ export default function CriarQuiz() {
           box-shadow: 0 0 12px #8b2af8;
         }
 
+        .btn.small {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+        }
+
         @media (max-width: 480px) {
           .title {
             font-size: 2rem;
@@ -258,13 +284,14 @@ export default function CriarQuiz() {
             max-width: 100%;
           }
         }
+
         .btn.add-q {
           margin-top: 20px;
           width: fit-content;
           align-self: center;
         }
       `}</style>
-            <style jsx global>{`
+      <style jsx global>{`
         html, body {
           margin: 0;
           padding: 0;

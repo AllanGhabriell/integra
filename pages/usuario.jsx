@@ -41,13 +41,28 @@ export default function Usuarios() {
     if (!confirm('Deseja realmente excluir este usuário?')) return
     fetch(`/api/usuarios/${id}`, {
       method: 'DELETE',
-      credentials: 'include'
+      credentials: 'include',
     })
       .then(res => {
         if (res.ok) {
           setUsers(us => us.filter(u => u._id !== id))
         } else {
           alert('Erro ao excluir usuário')
+        }
+      })
+  }
+
+  function handleReset(id) {
+    if (!confirm('Deseja realmente resetar os dados deste usuário?')) return
+    fetch(`/api/usuarios/${id}/reset`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then(res => {
+        if (res.ok) {
+          alert('Dados do usuário resetados com sucesso.')
+        } else {
+          alert('Erro ao resetar dados do usuário')
         }
       })
   }
@@ -66,7 +81,14 @@ export default function Usuarios() {
           {users.map(user => (
             <li key={user._id} className="user-item">
               <span>{user.name} ({user.email})</span>
-              <button onClick={() => handleDelete(user._id)} className="btn">Excluir</button>
+              <div className="button-group">
+                <button onClick={() => handleDelete(user._id)} className="btn">
+                  Excluir
+                </button>
+                <button onClick={() => handleReset(user._id)} className="btn reset-btn">
+                  Resetar Dados
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -143,6 +165,11 @@ export default function Usuarios() {
           user-select: none;
         }
 
+        .button-group {
+          display: flex;
+          gap: 10px;
+        }
+
         .btn {
           background: rgba(255,255,255,0.1);
           backdrop-filter: blur(10px);
@@ -161,6 +188,15 @@ export default function Usuarios() {
           box-shadow: 0 0 12px #8b2af8;
         }
 
+        .reset-btn {
+          background: rgba(255, 100, 100, 0.1);
+          border-color: #ff5c5c;
+        }
+        .reset-btn:hover {
+          border-color: #ff5c5c;
+          box-shadow: 0 0 12px #ff5c5c;
+        }
+
         @media (max-width: 480px) {
           .title {
             font-size: 2rem;
@@ -169,6 +205,9 @@ export default function Usuarios() {
             flex-direction: column;
             gap: 10px;
             text-align: center;
+          }
+          .button-group {
+            flex-direction: column;
           }
         }
       `}</style>
