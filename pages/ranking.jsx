@@ -1,76 +1,69 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 export default function Ranking() {
-  const router = useRouter();
-  const [ranking, setRanking] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter()
+  const [ranking, setRanking] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const usersRes = await fetch("/api/usuarios");
-        const users = await usersRes.json();
+        const usersRes = await fetch('/api/usuarios')
+        const users = await usersRes.json()
 
         const withStats = await Promise.all(
-          users.map(async (u) => {
+          users.map(async u => {
+            const userId = u._id || u.id
             try {
-              const statsRes = await fetch(`/api/usuarios/${u._id}/stats`);
-              if (!statsRes.ok) throw new Error("Stats fetch failed");
-              const stats = await statsRes.json();
-              return { ...u, totalJogos: stats.totalJogos };
+              const statsRes = await fetch(`/api/usuarios/${u._id}/stats`)
+              if (!statsRes.ok) throw new Error('Stats fetch failed')
+              const stats = await statsRes.json()
+              return { ...u, totalJogos: stats.totalJogos }
             } catch (err) {
-              console.warn(
-                `Não foi possível carregar stats para ${u._id}, usando 0`
-              );
-              return { ...u, totalJogos: 0 };
+              console.warn(`Não foi possível carregar stats para ${u._id}, usando 0`)
+              return { ...u, totalJogos: 0 }
             }
           })
-        );
+        )
 
-        withStats.sort((a, b) => b.totalJogos - a.totalJogos);
-        setRanking(withStats);
+        withStats.sort((a, b) => b.totalJogos - a.totalJogos)
+        setRanking(withStats)
       } catch (error) {
-        console.error("Erro ao carregar usuários:", error);
-        setRanking([]);
+        console.error('Erro ao carregar usuários:', error)
+        setRanking([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    })();
-  }, []);
+    })()
+  }, [])
 
   return (
     <div className="container">
-      <button className="close-btn" onClick={() => router.push("/")}>
-        X
-      </button>
+      <button className="close-btn" onClick={() => router.push('/')}>X</button>
       <h1 className="title">Ranking de Jogadores</h1>
 
       {loading ? (
         <p className="loading-text">Carregando ranking…</p>
-      ) : ranking.length > 0 ? (
-        <ul className="list">
-          {ranking.map((user, idx) => (
-            <li
-              key={user._id}
-              className={`item ${
-                idx === 0
-                  ? "rank1"
-                  : idx === 1
-                  ? "rank2"
-                  : idx === 2
-                  ? "rank3"
-                  : ""
-              }`}
-            >
-              <span className="position">{idx + 1}º</span>
-              <span className="name">{user.name}</span>
-              <span className="games">{user.totalJogos} jogos</span>
-            </li>
-          ))}
-        </ul>
       ) : (
-        <p className="loading-text">Nenhum dado disponível no ranking</p>
+        ranking.length > 0 ? (
+          <ul className="list">
+            {ranking.map((user, idx) => (
+              <li
+                key={user._id}
+                className={`item ${
+                  idx === 0 ? 'rank1' : idx === 1 ? 'rank2' : idx === 2 ? 'rank3' : ''
+                }`}
+              >
+                <span className="position">{idx + 1}º</span>
+                <span className="name">{user.name}</span>
+                <span className="games">{user.totalJogos} jogos</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="loading-text">Nenhum dado disponível no ranking</p>
+        )
       )}
 
       <style jsx>{`
@@ -228,5 +221,5 @@ export default function Ranking() {
         }
       `}</style>
     </div>
-  );
+  )
 }
