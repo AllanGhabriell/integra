@@ -1,4 +1,3 @@
-// /pages/api/auth/[...nextauth].js
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -76,7 +75,6 @@ export default NextAuth({
 
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      // Primeiro login: trate providers
       if (account) {
         if (account.provider === 'google') {
           // Conectar e sincronizar usuário Google

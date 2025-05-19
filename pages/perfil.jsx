@@ -205,7 +205,7 @@ export default function Perfil() {
           <p className="stats">Média de erros: {stats.mediaErros.toFixed(2)}</p>
 
           <button className="logout-btn" onClick={() => { signOut(); router.push('/') }}>
-            Sair
+            Sair da Conta
           </button>
         </div>
       </div>

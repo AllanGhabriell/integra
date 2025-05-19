@@ -1,4 +1,3 @@
-// pages/ranking.jsx
 import { useRouter } from 'next/router'
 import { connectToDatabase } from '../lib/db'
 import User from '../models/User'
@@ -7,20 +6,16 @@ import Resultado from '../models/Resultado'
 export async function getServerSideProps() {
   await connectToDatabase()
 
-  // Busca todos os usuários (somente nome e _id)
   const users = await User.find({}, 'name').lean()
 
-  // Agrupa resultados por usuário para contar total de jogos
   const agg = await Resultado.aggregate([
     { $group: { _id: '$user', totalJogos: { $sum: 1 } } }
   ])
 
-  // Cria um mapa { userId: totalJogos }
   const statsMap = Object.fromEntries(
     agg.map(r => [r._id.toString(), r.totalJogos])
   )
 
-  // Monta ranking e ordena
   const ranking = users
     .map(u => ({
       _id: u._id.toString(),

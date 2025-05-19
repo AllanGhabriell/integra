@@ -1,4 +1,3 @@
-// pages/api/quizzes/[id].js
 import { connectToDatabase } from '../../../lib/db'
 import Quiz from '../../../models/Quiz'
 import { getToken } from 'next-auth/jwt'

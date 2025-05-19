@@ -1,4 +1,3 @@
-// models/Quiz.js
 import mongoose from 'mongoose'
 
 const QuestionSchema = new mongoose.Schema({
