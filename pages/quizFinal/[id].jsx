@@ -11,70 +11,131 @@ export default function QuizFinal() {
 
   // Estilos compartilhados
   const styles = `
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow-x: hidden;
+    html,
+    body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
     }
+
     .container {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(270deg, #000000, #2E0249, #000428);
-      background-size: 600% 600%;
-      animation: gradientBG 15s ease infinite;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(270deg, #000000, #2E0249, #000428);
+    background-size: 600% 600%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    animation: gradientBG 15s ease infinite;
+    padding: 20px;
+    box-sizing: border-box;
     }
+
     @keyframes gradientBG {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+    0%,
+    100% {
+      background-position: 0% 50%;
     }
+    50% {
+      background-position: 100% 50%;
+    }
+    }
+
     .result-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid white;
-      border-radius: 16px;
-      padding: 30px;
-      text-align: center;
-      color: white;
-      width: 90%;
-      max-width: 350px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    color: white;
+    width: 90%;
+    max-width: 350px;
+    box-sizing: border-box;
     }
+
     .title {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
     }
+
     .stat {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
     }
+
     .button-group {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    }
+
+    .icon-button {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    flex: 1 1 120px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    }
+
+    .icon-button:hover {
+    background: white;
+    color: black;
+    }
+
+    .loading-text {
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+    }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 600px) {
+    .container {
+      padding: 15px;
+    }
+
+    .result-card {
+      padding: 20px;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .stat {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .button-group {
+      gap: 10px;
+    }
+
+    .icon-button {
+      padding: 8px 16px;
+      font-size: 1rem;
+      flex: 1 1 100%;
+    }
+
+    .loading-text {
+      font-size: 1rem;
       margin-top: 20px;
     }
-    .icon-button {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.5rem;
-      transition: all 0.3s ease;
     }
-    .icon-button:hover {
-      background: white;
-      color: black;
-    }
-    .loading-text {
-      color: white;
-      font-size: 1.2rem;
-      text-align: center;
-    }
+
   `
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-// pages/api/resultados/index.js
 import { connectToDatabase } from '../../../lib/db'
 import Resultado from '../../../models/Resultado'
 import { getToken } from 'next-auth/jwt'

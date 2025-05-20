@@ -1,4 +1,3 @@
-// pages/api/testSession.js
 import { getSession } from 'next-auth/react'
 
 const handler = async (req, res) => {

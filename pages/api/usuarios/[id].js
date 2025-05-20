@@ -1,4 +1,3 @@
-// pages/api/usuarios/[id].js
 import { connectToDatabase } from '../../../lib/db'
 import User from '../../../models/User'
 import { getToken } from 'next-auth/jwt'

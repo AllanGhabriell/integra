@@ -67,110 +67,171 @@ export default function Admin() {
         </ul>
       )}
 
-      <style jsx>{`
-        .container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100vh;
-          padding: 40px 20px;
-          background: linear-gradient(270deg, #000000, #2E0249, #000428);
-          background-size: 600% 600%;
-          animation: gradientBG 15s ease infinite;
-          color: white;
-          font-family: sans-serif;
-          overflow-y: auto;
-          overflow-x: hidden;
-        }
+<style jsx>{`
+  .container {
+    width: 100%;
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: linear-gradient(270deg, #000, #2E0249, #000428);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
+    color: white;
+    font-family: sans-serif;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
 
-        @keyframes gradientBG {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
+  @keyframes gradientBG {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
 
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
-        }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
 
-        .title {
-          font-size: 2rem;
-        }
+  .title {
+    font-size: 2rem;
+    margin: 0;
+  }
 
-        .buttons button {
-          margin-left: 10px;
-          padding: 8px 16px;
-          background: transparent;
-          border: 1px solid white;
-          color: white;
-          border-radius: 6px;
-          cursor: pointer;
-        }
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-        .buttons button:hover {
-          background: white;
-          color: black;
-        }
+  .buttons button {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    flex: 1 1 auto;
+    min-width: 100px;
+  }
 
-        .message {
-          font-size: 1.2rem;
-          margin-top: 20px;
-        }
+  .buttons button:hover {
+    background: white;
+    color: black;
+  }
 
-        .quiz-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
+  .message {
+    font-size: 1.2rem;
+    margin-top: 20px;
+    text-align: center;
+  }
 
-        .quiz-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border: 1px solid white;
-          border-radius: 10px;
-          padding: 16px;
-          margin-bottom: 16px;
-          transition: box-shadow 0.3s ease;
-        }
+  .quiz-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-        .quiz-item:hover {
-          box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
-        }
+  .quiz-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 16px;
+    transition: box-shadow 0.3s ease;
+  }
 
-        .quiz-title {
-          font-weight: bold;
-        }
+  .quiz-item:hover {
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+  }
 
-        .quiz-actions {
-          display: flex;
-          gap: 10px;
-          opacity: 0.8;
-        }
+  .quiz-title {
+    font-weight: bold;
+    flex: 1 1 100%;
+    word-break: break-word;
+  }
 
-        .quiz-actions button {
-          padding: 6px 12px;
-          background: transparent;
-          border: 1px solid white;
-          color: white;
-          border-radius: 6px;
-          cursor: pointer;
-        }
+  .quiz-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    opacity: 0.8;
+  }
 
-        .quiz-actions button:hover {
-          background: white;
-          color: black;
-        }
+  .quiz-actions button {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    flex: 1 1 auto;
+    min-width: 80px;
+  }
 
-        .loading {
-          padding: 20px;
-          font-size: 1.2rem;
-          color: white;
-        }
-      `}</style>
+  .quiz-actions button:hover {
+    background: white;
+    color: black;
+  }
+
+  .loading {
+    padding: 20px;
+    font-size: 1.2rem;
+    color: white;
+    text-align: center;
+  }
+
+  /* Global reset do html/body */
+  :global(html, body) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Ajustes para telas pequenas */
+  @media (max-width: 600px) {
+    .container {
+      padding: 20px 10px;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .title {
+      font-size: 1.5rem;
+    }
+
+    .buttons button {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+
+    .quiz-item {
+      padding: 12px;
+    }
+
+    .quiz-actions button {
+      padding: 4px 8px;
+      font-size: 0.85rem;
+    }
+  }
+`}</style>
+
 
       <style jsx global>{`
         html, body {

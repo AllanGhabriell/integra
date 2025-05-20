@@ -8,103 +8,146 @@ export default function Perfil() {
   const [stats, setStats] = useState(null)
   const [statsError, setStatsError] = useState(false)
 
-  const styles = `
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow-x: hidden;
-    }
-    .container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(270deg, #000000, #2E0249, #000428);
-      background-size: 600% 600%;
-      animation: gradientBG 15s ease infinite;
-      overflow: hidden;
-    }
-    @keyframes gradientBG {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    .loading-text, .login-text, .error-text {
-      color: white;
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .login-btn, .logout-btn, .close-btn {
-      padding: 10px 20px;
-      border: 1px solid white;
-      background: transparent;
-      color: white;
-      cursor: pointer;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    .close-btn {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: transparent;
-      border: none;
+const styles = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(270deg, #000000, #2E0249, #000428);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
+  }
+
+  @keyframes gradientBG {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .loading-text, .login-text, .error-text {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .login-btn, .logout-btn, .close-btn {
+    padding: 10px 20px;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+  }
+
+  .close-btn:hover {
+    color: #8b2af8;
+    text-shadow: 0 0 8px #8b2af8;
+  }
+
+  .profile-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    color: white;
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
+  }
+
+  .img-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .profile-img, .profile-icon {
+    width: clamp(60px, 20vw, 100px);
+    height: clamp(60px, 20vw, 100px);
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .profile-icon svg {
+    width: 60%;
+    height: auto;
+  }
+
+  .name {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    word-break: break-word;
+  }
+
+  .stats {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    word-break: break-word;
+  }
+
+  .logout-btn:hover {
+    background: white;
+    color: black;
+  }
+
+  /* Responsivo para telas pequenas */
+  @media (max-width: 600px) {
+    .name {
       font-size: 1.5rem;
     }
-    .close-btn:hover {
-      color: #8b2af8;
-      text-shadow: 0 0 8px #8b2af8;
-    }
-    .profile-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid white;
-      border-radius: 16px;
-      padding: 30px;
-      text-align: center;
-      color: white;
-      width: 90%;
-      max-width: 350px;
-    }
-    .img-box {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .profile-img, .profile-icon {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 2px solid white;
-      object-fit: cover;
-      background-color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .name {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-      word-break: break-word;
-    }
+
     .stats {
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-      word-break: break-word;
+      font-size: 1rem;
     }
-    .logout-btn:hover {
-      background: white;
-      color: black;
+
+    .login-btn, .logout-btn {
+      font-size: 0.9rem;
+      padding: 8px 16px;
     }
-  `
+
+    .profile-card {
+      padding: 20px;
+    }
+
+    .profile-img, .profile-icon {
+      width: 60px;
+      height: 60px;
+    }
+  }
+`
+
 
   useEffect(() => {
     if (status === 'loading' || !session) return
