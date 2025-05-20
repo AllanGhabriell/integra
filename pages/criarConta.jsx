@@ -115,121 +115,150 @@ export default function CriarConta() {
         </form>
       </div>
 
-      <style jsx>{`
-        .container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          min-height: 100vh;
-          background: linear-gradient(270deg, #000000, #2E0249, #000428);
-          background-size: 600% 600%;
-          animation: gradientBG 15s ease infinite;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          overflow-x: hidden;
-        }
+ <style jsx>{`
+  .container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(270deg, #000000, #2E0249, #000428);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    overflow-x: hidden;
+    overflow-y: auto;   /* permite scroll se ultrapassar altura */
+    box-sizing: border-box;
+  }
 
-        @keyframes gradientBG {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
+  @keyframes gradientBG {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
 
-        .close-btn {
-          position: absolute;
-          top: 20px;
-          left: 20px;
-          background: transparent;
-          border: none;
-          color: white;
-          font-size: 1.5rem;
-          cursor: pointer;
-          transition: color 0.3s ease;
-        }
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .close-btn:hover {
+    color: #f87171;
+    text-shadow: 0 0 8px #f87171;
+  }
 
-        .close-btn:hover {
-          color: #f87171;
-          text-shadow: 0 0 8px #f87171;
-        }
+  .form-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid white;
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+  }
 
-        .form-box {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid white;
-          border-radius: 16px;
-          padding: 30px;
-          width: 90%;
-          max-width: 400px;
-        }
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+  }
 
-        .title {
-          font-size: 1.8rem;
-          margin-bottom: 20px;
-          text-align: center;
-        }
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
 
-        .form {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-        }
+  label {
+    font-weight: bold;
+    font-size: 1rem;
+  }
 
-        label {
-          font-weight: bold;
-        }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    box-sizing: border-box;
+  }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="file"] {
-          padding: 10px;
-          border-radius: 8px;
-          border: none;
-        }
+  .preview {
+    margin-top: 10px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    align-self: center;
+  }
 
-        .preview {
-          margin-top: 10px;
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 2px solid white;
-          align-self: center;
-        }
+  .submit-btn {
+    padding: 10px;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .submit-btn:hover:enabled {
+    background: white;
+    color: black;
+  }
 
-        .submit-btn {
-          padding: 10px;
-          border: 1px solid white;
-          background: transparent;
-          color: white;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
+  .error-msg {
+    color: #f87171;
+    text-align: center;
+    margin-bottom: 10px;
+  }
 
-        .submit-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
+  .error-text {
+    font-size: 0.85rem;
+    color: #f87171;
+  }
 
-        .submit-btn:hover:enabled {
-          background: white;
-          color: black;
-        }
+  @media (max-width: 480px) {
+    .container {
+      justify-content: flex-start;
+      padding-top: 60px;
+      padding-bottom: 40px;
+    }
+    .form-box {
+      padding: 20px;
+    }
+    .title {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    .form {
+      gap: 12px;
+    }
+    .submit-btn {
+      padding: 8px;
+      font-size: 0.95rem;
+    }
+    .preview {
+      width: 60px;
+      height: 60px;
+    }
+  }
+`}</style>
 
-        .error-msg {
-          color: #f87171;
-          text-align: center;
-          margin-bottom: 10px;
-        }
-
-        .error-text {
-          font-size: 0.85rem;
-          color: #f87171;
-        }
-      `}</style>
 
       <style jsx global>{`
         html, body {
